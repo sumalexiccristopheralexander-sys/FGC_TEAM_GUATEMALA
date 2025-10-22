@@ -1,0 +1,250 @@
+// Author: Team Guatemala
+//------------------------
+
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
+
+// Annotation to make it appear on the Driver Hub
+@TeleOp(name = "Movement 2 Controllers", group = "Competition")
+public class firstP2 extends LinearOpMode {
+
+    // Hardware Declaration
+
+    // Traction motors (omnidirectional)
+    private DcMotorEx rightFront, rightBack, leftFront, leftBack;
+
+    // Mechanism actuators
+    private DcMotorEx motorHex;   // Collector motor
+    private DcMotorEx motorHex2;  // Rope motor (uses encoder)
+    private DcMotorEx motorUltra; // Accelerator motor
+
+    // Servomotors
+    private Servo servomotor1; // Collector servo
+    private Servo servomotor2; // Right extender
+    private Servo servomotor3; // Left extender
+
+    // State Variables
+
+    // Logical states (for toggles/on-off)
+    private boolean hexForward = false;
+    private boolean hexReverse = false;
+    private boolean ultraForward = false;
+    private boolean ultraReverse = false;
+    private boolean ropeHoldActive = false; // Rope lock
+
+    // Debounce: prevents repeatedly activating functions with a single press
+    private boolean prevX, prevTriangle, prevSquare, prevCircle, prevCircle2;
+
+    // Constants
+
+    private static final double HEX_POWER = 1.0;      // Collector power
+    private static final double ULTRA_POWER = 1.0;    // Accelerator power
+    private static final double HOLD_POWER = 0.45;    // Force to maintain rope position
+
+    // Positions for servos
+    private static final double SERVO_ADELANTE = 1.0;//Forward
+    private static final double SERVO_ATRAS = 0.0;//Backward 
+    private static final double SERVO_PARAR = 0.5;//Stop
+
+    // Stores the current rope position when locked
+    private int holdPosition = 0;
+
+
+    // Main Method
+    @Override
+    public void runOpMode() throws InterruptedException {
+
+        // Initialization
+
+        // Map hardware names (from the configuration in the Driver Hub)
+        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+        rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
+        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
+        leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
+
+        motorHex = hardwareMap.get(DcMotorEx.class, "motorHex");
+        motorHex2 = hardwareMap.get(DcMotorEx.class, "motorHex2");
+        motorUltra = hardwareMap.get(DcMotorEx.class, "motorUltra");
+
+        servomotor1 = hardwareMap.get(Servo.class, "servomotor1");
+        servomotor2 = hardwareMap.get(Servo.class, "servomotor2");
+        servomotor3 = hardwareMap.get(Servo.class, "servomotor3");
+
+        // Left side motors must be inverted so they all turn in the same direction
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        // Configure the rope (motor with encoder)
+        motorHex2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE); // brakes when released
+        motorHex2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorHex2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        // Servos in neutral position at start
+        servomotor1.setPosition(SERVO_PARAR);
+        servomotor2.setPosition(SERVO_PARAR);
+        servomotor3.setPosition(SERVO_PARAR);
+
+        // Message on the Driver Hub screen
+        telemetry.addLine("[System Ready] Press PLAY to start.");
+        telemetry.update();
+
+        // Waits until the user presses PLAY
+        waitForStart();
+
+        // Main Loop
+        while (opModeIsActive()) {
+
+            // Omnidirectional Movement (gamepad 1 joysticks)
+
+            float powerY = -gamepad1.left_stick_y; // Forward / backward
+            float powerX = gamepad1.left_stick_x;  // Lateral movement
+            float rot = gamepad1.right_stick_x;    // Rotation
+
+            // Combinations for mecanum/omni wheels
+            float RF = powerY - powerX - rot; // Right front wheel
+            float RB = powerY + powerX - rot; // Right rear wheel
+            float LF = powerY + powerX + rot; // Left front wheel
+            float LB = powerY - powerX + rot; // Left rear wheel
+
+            // Assign power to each wheel (limiting between -1 and 1)
+            rightFront.setPower(Range.clip(RF, -1, 1));
+            rightBack.setPower(Range.clip(RB, -1, 1));
+            leftFront.setPower(Range.clip(LF, -1, 1));
+            leftBack.setPower(Range.clip(LB, -1, 1));
+
+           // Collector (gamepad2: x and triangle)
+            boolean x = gamepad2.cross;
+            boolean triangle = gamepad2.triangle;
+
+            // Toggle direction with one touch (on-off)
+            if (x && !prevX) {
+                hexForward = !hexForward;
+                hexReverse = false;
+            } else if (triangle && !prevTriangle) {
+                hexReverse = !hexReverse;
+                hexForward = false;
+            }
+
+            // Execute according to state
+            if (hexForward) {
+                motorHex.setPower(HEX_POWER);// Collector system spinning clockwise
+                servomotor1.setPosition(SERVO_ADELANTE);
+            } else if (hexReverse) {
+                motorHex.setPower(-HEX_POWER);// Collector system spinning counter-clockwise
+                servomotor1.setPosition(SERVO_ATRAS);
+            } else {
+                motorHex.setPower(0);// Remain in neutral state
+                servomotor1.setPosition(SERVO_PARAR);
+            }
+
+            // Rope with encoder (gamepad 2; D-pad and circle)
+            boolean dpadLeft = gamepad2.dpad_left;
+            boolean dpadRight = gamepad2.dpad_right;
+            boolean circle2 = gamepad2.circle;
+
+            // Hold mode (position lock)
+            if (circle2 && !prevCircle2) {
+                ropeHoldActive = !ropeHoldActive;
+
+                if (ropeHoldActive) {
+                    // Save current position and hold it
+                    holdPosition = motorHex2.getCurrentPosition();
+                    motorHex2.setTargetPosition(holdPosition);
+                    motorHex2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    motorHex2.setPower(HOLD_POWER);
+                } else {
+                    // Release manual control
+                    motorHex2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    motorHex2.setPower(0);
+                }
+            }
+
+            // Manual rope control (only if not in hold mode)
+            if (!ropeHoldActive) {
+                if (dpadLeft) { // Up
+                    motorHex2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    motorHex2.setPower(1.0);
+                } else if (dpadRight) { // Down
+                    motorHex2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    motorHex2.setPower(-1.0);
+                } else {
+                    motorHex2.setPower(0);
+                }
+            } else {
+                // Maintain locked position
+                motorHex2.setTargetPosition(holdPosition);
+                motorHex2.setPower(HOLD_POWER);
+            }
+
+            // Accelerator (gamepad 1: square and circle)
+
+            boolean square = gamepad1.square;
+            boolean circle = gamepad1.circle;
+            // Toggle direction
+            if (square && !prevSquare) {
+                ultraForward = !ultraForward;
+                ultraReverse = false;
+            } else if (circle && !prevCircle) {
+                ultraReverse = !ultraReverse;
+                ultraForward = false;
+            }
+
+            // Activate according to direction
+            if (ultraForward)
+                motorUltra.setPower(ULTRA_POWER);
+            else if (ultraReverse)
+                motorUltra.setPower(-ULTRA_POWER);
+            else
+                motorUltra.setPower(0);
+
+            // Extender Servos (gamepad 2: lb, rb, l2 and r2)
+            boolean lb = gamepad2.left_bumper;
+            boolean rb = gamepad2.right_bumper;
+            float l2 = gamepad2.left_trigger;
+            float r2 = gamepad2.right_trigger;
+
+            // Possible extension and retraction combinations
+            if (lb) {// Rotate left motor only - Clockwise
+                servomotor3.setPosition(SERVO_ATRAS);
+            } else if (rb) {// Rotate right motor only - Clockwise
+                servomotor2.setPosition(SERVO_ADELANTE);
+            } else if (l2 > 0) {// Rotate left motor only - Counter-clockwise
+                servomotor3.setPosition(SERVO_ADELANTE);
+            } else if (r2 > 0) {// Rotate right motor only - Counter-clockwise
+                servomotor2.setPosition(SERVO_ATRAS);
+            } else if (lb && rb) {// Rotate at the same time forward
+                servomotor3.setPosition(SERVO_ATRAS);
+                servomotor2.setPosition(SERVO_ADELANTE);
+            } else if (l2 > 0 && r2 > 0) {// Rotate at the same time backward 
+                servomotor3.setPosition(SERVO_ADELANTE);
+                servomotor2.setPosition(SERVO_ATRAS);
+            } else {
+                servomotor2.setPosition(SERVO_PARAR);
+                servomotor3.setPosition(SERVO_PARAR);
+            }
+
+            // Telemetry, messages on the Driver Hub
+
+            telemetry.addData("Hex Rotor", hexForward ? "→ Forward" : (hexReverse ? "← Reverse" : "Stopped"));
+            telemetry.addData("Rope Pos (ticks)", motorHex2.getCurrentPosition());
+            telemetry.addData("Rope Target", motorHex2.getTargetPosition());
+            telemetry.addData("Hold", ropeHoldActive ? "Active" : "Free");
+            telemetry.addData("Accelerator", ultraForward ? "→ Direct" : (ultraReverse ? "← Inverse" : "Stopped"));
+            telemetry.addData("Servo2", "%.2f", servomotor2.getPosition());
+            telemetry.addData("Servo3", "%.2f", servomotor3.getPosition());
+            telemetry.update();
+
+            // Save previous states (debounce)
+            prevX = x;
+            prevTriangle = triangle;
+            prevSquare = square;
+            prevCircle = circle;
+            prevCircle2 = circle2;
+        }
+    }
+}
