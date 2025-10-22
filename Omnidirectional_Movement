@@ -1,0 +1,51 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.Range;
+
+@TeleOp(name = "Omnidirectional Movement", group = "Mechanisms")
+public class MovementBase extends LinearOpMode {
+
+    private DcMotorEx rightFront, rightBack, leftFront, leftBack;
+
+    @Override
+    public void runOpMode() throws InterruptedException {
+        // Hardware mapping
+        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+        rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
+        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
+        leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
+
+        // Reverse left side motors so all wheels spin correctly
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        telemetry.addLine("Drive system ready.");
+        telemetry.update();
+        waitForStart();
+
+        // Main control loop
+        while (opModeIsActive()) {
+            // Read joystick input
+            float powerY = -gamepad1.left_stick_y; // Forward/backward
+            float powerX = gamepad1.left_stick_x;  // Strafe
+            float rot = gamepad1.right_stick_x;    // Rotation
+
+            // Mecanum wheel power calculation
+            float RF = powerY - powerX - rot;
+            float RB = powerY + powerX - rot;
+            float LF = powerY + powerX + rot;
+            float LB = powerY - powerX + rot;
+
+            // Apply motor power, limited between -1 and 1
+            rightFront.setPower(Range.clip(RF, -1, 1));
+            rightBack.setPower(Range.clip(RB, -1, 1));
+            leftFront.setPower(Range.clip(LF, -1, 1));
+            leftBack.setPower(Range.clip(LB, -1, 1));
+        }
+    }
+}
