@@ -101,7 +101,7 @@ The code is divided into modules, each specialized in a robot subsystem. Below i
 
 ## Espanish
 
----
+
 
 # 🇬🇹 FGC_TEAM_GUATEMALA - Código de Robótica FTC
 
