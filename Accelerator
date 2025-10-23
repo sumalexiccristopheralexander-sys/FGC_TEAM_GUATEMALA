@@ -1,0 +1,55 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+
+@TeleOp(name = "Accelerator", group = "Mechanisms")
+public class Accelerator extends LinearOpMode {
+
+    private DcMotorEx motorUltra;
+    private boolean ultraForward = false;
+    private boolean ultraReverse = false;
+    private boolean prevSquare, prevCircle;
+
+    private static final double ULTRA_POWER = 1.0;
+
+    @Override
+    public void runOpMode() throws InterruptedException {
+        // Hardware mapping
+        motorUltra = hardwareMap.get(DcMotorEx.class, "motorUltra");
+
+        telemetry.addLine("Accelerator ready.");
+        telemetry.update();
+        waitForStart();
+
+        while (opModeIsActive()) {
+            boolean square = gamepad1.square;
+            boolean circle = gamepad1.circle;
+
+            // Toggle direction
+            if (square && !prevSquare) {
+                ultraForward = !ultraForward;
+                ultraReverse = false;
+            } else if (circle && !prevCircle) {
+                ultraReverse = !ultraReverse;
+                ultraForward = false;
+            }
+
+            // Apply power according to direction
+            if (ultraForward)
+                motorUltra.setPower(ULTRA_POWER);
+            else if (ultraReverse)
+                motorUltra.setPower(-ULTRA_POWER);
+            else
+                motorUltra.setPower(0);
+
+            telemetry.addData("Accelerator", ultraForward ? "→ Forward" : (ultraReverse ? "← Reverse" : "Stopped"));
+            telemetry.update();
+
+            // Save button states
+            prevSquare = square;
+            prevCircle = circle;
+        }
+    }
+}
