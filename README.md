@@ -98,14 +98,8 @@ The code is divided into modules, each specialized in a robot subsystem. Below i
 ### 🇬🇹 *FGC_TEAM_GUATEMALA*
 
 ---
-
-
-
-
-
-
-
-
+---
+---
 
 
 ## Espanish
