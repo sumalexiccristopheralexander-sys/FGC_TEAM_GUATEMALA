@@ -1,0 +1,56 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.Servo;
+
+@TeleOp(name = "Servo Extenders", group = "Mechanisms")
+public class ServoExtenders extends LinearOpMode {
+
+    private Servo servo2, servo3;
+
+    private static final double SERVO_FORWARD = 1.0;
+    private static final double SERVO_BACKWARD = 0.0;
+    private static final double SERVO_STOP = 0.5;
+
+    @Override
+    public void runOpMode() throws InterruptedException {
+        // Hardware mapping
+        servo2 = hardwareMap.get(Servo.class, "servomotor2");
+        servo3 = hardwareMap.get(Servo.class, "servomotor3");
+
+        // Initialize in neutral position
+        servo2.setPosition(SERVO_STOP);
+        servo3.setPosition(SERVO_STOP);
+
+        telemetry.addLine("Servo extenders ready.");
+        telemetry.update();
+        waitForStart();
+
+        while (opModeIsActive()) {
+            boolean lb = gamepad2.left_bumper;
+            boolean rb = gamepad2.right_bumper;
+            float l2 = gamepad2.left_trigger;
+            float r2 = gamepad2.right_trigger;
+
+            // Independent or simultaneous movements
+            if (lb) { // Left servo backward
+                servo3.setPosition(SERVO_BACKWARD);
+            } else if (rb) { // Right servo forward
+                servo2.setPosition(SERVO_FORWARD);
+            } else if (l2 > 0) { // Left servo forward
+                servo3.setPosition(SERVO_FORWARD);
+            } else if (r2 > 0) { // Right servo backward
+                servo2.setPosition(SERVO_BACKWARD);
+            } else {
+                // Stop both servos
+                servo2.setPosition(SERVO_STOP);
+                servo3.setPosition(SERVO_STOP);
+            }
+
+            telemetry.addData("Servo2 Position", servo2.getPosition());
+            telemetry.addData("Servo3 Position", servo3.getPosition());
+            telemetry.update();
+        }
+    }
+}
