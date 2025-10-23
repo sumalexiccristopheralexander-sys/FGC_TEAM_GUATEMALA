@@ -1,3 +1,105 @@
+# 🇬🇹 FGC_TEAM_GUATEMALA - FTC Robotics Code
+
+Welcome to the official repository of **FGC_TEAM_GUATEMALA** for the **FIRST Global Challenge (FGC)**.  
+This project contains the modular code that controls our robot, allowing organized development, easy maintenance, and feature expansion.
+
+---
+
+## Project Structure and Detailed Functions
+
+The code is divided into modules, each specialized in a robot subsystem. Below is a description of each file and its internal functions:
+
+### 1. `Code_Team_Guatemala.java` (Main TeleOp)
+- Initializes all the robot's motors, servos, and sensors.
+- Calls the subsystem methods (`Accelerator`, `Collector_System`, etc.) on each TeleOp cycle.
+- Manages **toggles**, allowing mechanisms to be turned on or off with a single button press.
+- Reads **gamepads** and translates joystick movements into speed and direction commands for the motors.
+- Sends **telemetry** data to the Driver Station for real-time monitoring.
+
+### 2. `Accelerator.java`
+- Controls the motor responsible for launching objects.
+- Allows adjusting launch speed for different situations.
+- Includes **toggle** logic to activate/deactivate the launcher without holding the button.
+- Can control motor direction if reversing is required.
+
+### 3. `Collector_System.java`
+- Manages the robot's intake/collection motors.
+- Allows picking up or expelling objects based on gamepad input.
+- Includes **toggle** logic to maintain activation without holding the button.
+- Adjusts motor power to prevent overflow or system damage.
+
+### 4. `Omnidirectional_Movement.java`
+- Controls the **mecanum** wheel drive system (omnidirectional movement).
+- Translates joystick input into individual wheel speeds, enabling:
+  - Forward/backward movement
+  - Rotation on its axis
+  - Lateral movement (strafing)
+- Includes **power limiting** functions for smoother, controlled movement.
+- Adjusts wheel direction based on hardware configuration.
+
+### 5. `Rope_with_Encoder.java`
+- Controls the motor that raises or lowers the arm/hook using an **encoder**.
+- Allows precise movement to predefined positions, stopping automatically using encoder feedback.
+- Control logic can operate in automatic mode (go to position) or manual mode (raise/lower via gamepad buttons).
+- Protects the motor and lift system from overload or out-of-range movements.
+
+### 6. `Servo_Extenders.java`
+- Controls servos that extend arms or mechanisms.
+- Each servo can be toggled, maintaining position until the button is pressed again.
+- Allows coordinated movement of multiple servos at once.
+- Adjusts movement ranges to prevent servo damage.
+
+---
+
+## Key Features
+
+- **Full Modularity:** Each subsystem has its own class for easier reading and maintenance.
+- **Precise Control:** Scaled motors and servos for smooth and accurate movement.
+- **Position Feedback:** Encoders for arms and lifts.
+- **Toggle Logic:** Stable on/off control for servos and motors.
+- **Real-Time Telemetry:** Key information displayed on the Driver Station.
+
+---
+
+## Robot Controls
+
+| Gamepad | Control | Function |
+|---------|---------|---------|
+| Gamepad 1 | Left Stick | Forward/backward movement |
+| Gamepad 1 | Right Stick | Rotation or lateral movement |
+| Gamepad 2 | Buttons | Control lift/rope mechanism, accelerator, and collector |
+| Gamepad 2 | Triggers | Activate servos / control lift or rope mechanism |
+
+---
+
+## Code Architecture
+
+- `Code_Team_Guatemala` coordinates all subsystems and updates telemetry.
+- Each subsystem includes:
+  - **Hardware Mapping:** Motors, servos, and sensors.
+  - **Direction Configuration:** Ensures coherent movement.
+  - **Power and Position Control:** Uses `DcMotorEx`, `Servo`, `Range.clip()`.
+  - **Toggle Logic:** Stable activation/deactivation of mechanisms.
+  - **Telemetry:** Sends data to the Driver Station.
+
+---
+
+## Development Environment
+
+- **Language:** Java  
+- **Controller:** Android (REV Driver Hub / Control Hub)  
+- **App:** FTC Robot Controller  
+
+---
+
+## 🧑‍💻 Authors
+
+**Developed by:**  
+### 🇬🇹 *FGC_TEAM_GUATEMALA*
+
+---
+
+
 # 🇬🇹 FGC_TEAM_GUATEMALA - Código de Robótica FTC
 
 Bienvenidos al repositorio oficial de **FGC_TEAM_GUATEMALA** para la competencia **FIRST Global Challenge (FGC)**.  
