@@ -88,7 +88,7 @@ The code is divided into modules, each specialized in a robot subsystem. Below i
 
 - **Language:** Java  
 - **Controller:** Android (REV Driver Hub / Control Hub)  
-- **App:** REV Hardware Client
+- **App:** FTC Robot Controller
 
 ---
 
@@ -196,7 +196,7 @@ El código está dividido en módulos, cada uno especializado en un subsistema d
 
 - **Lenguaje:** Java  
 - **Controlador:** Android (REV Driver Hub / Control Hub)  
-- **App:** REV Hardware Client  
+- **App:** FTC Robot Controller
 
 ---
 
