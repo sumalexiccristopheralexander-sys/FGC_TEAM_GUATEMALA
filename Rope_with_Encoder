@@ -1,0 +1,74 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+
+@TeleOp(name = "Rope with Encoder", group = "Mechanisms")
+public class RopeControl extends LinearOpMode {
+
+    private DcMotorEx motorHex2;
+    private boolean ropeHoldActive = false;
+    private boolean prevCircle2;
+    private int holdPosition = 0;
+    private static final double HOLD_POWER = 0.45;
+
+    @Override
+    public void runOpMode() throws InterruptedException {
+        // Hardware mapping
+        motorHex2 = hardwareMap.get(DcMotorEx.class, "motorHex2");
+
+        // Configure motor with encoder
+        motorHex2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorHex2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorHex2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        telemetry.addLine("Rope ready.");
+        telemetry.update();
+        waitForStart();
+
+        while (opModeIsActive()) {
+            boolean dpadLeft = gamepad2.dpad_left;   // Raise
+            boolean dpadRight = gamepad2.dpad_right; // Lower
+            boolean circle2 = gamepad2.circle;       // Hold toggle
+
+            // Toggle hold mode
+            if (circle2 && !prevCircle2) {
+                ropeHoldActive = !ropeHoldActive;
+
+                if (ropeHoldActive) {
+                    // Save current position and hold it
+                    holdPosition = motorHex2.getCurrentPosition();
+                    motorHex2.setTargetPosition(holdPosition);
+                    motorHex2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    motorHex2.setPower(HOLD_POWER);
+                } else {
+                    // Return to manual control
+                    motorHex2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    motorHex2.setPower(0);
+                }
+            }
+
+            // Manual control when hold mode is off
+            if (!ropeHoldActive) {
+                if (dpadLeft)
+                    motorHex2.setPower(1.0);
+                else if (dpadRight)
+                    motorHex2.setPower(-1.0);
+                else
+                    motorHex2.setPower(0);
+            } else {
+                // Maintain locked position
+                motorHex2.setTargetPosition(holdPosition);
+                motorHex2.setPower(HOLD_POWER);
+            }
+
+            telemetry.addData("Rope Position", motorHex2.getCurrentPosition());
+            telemetry.addData("Hold Mode", ropeHoldActive ? "Active" : "Free");
+            telemetry.update();
+
+            prevCircle2 = circle2;
+        }
+    }
+}
