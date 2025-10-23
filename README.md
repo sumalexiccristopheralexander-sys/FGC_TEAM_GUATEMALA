@@ -1,4 +1,4 @@
-# 🇬🇹 FGC_TEAM_GUATEMALA - FTC Robotics Code
+# 🇬🇹 FGC_TEAM_GUATEMALA - FGC Robotics Code
 
 Welcome to the official repository of **FGC_TEAM_GUATEMALA** for the **FIRST Global Challenge (FGC)**.  
 This project contains the modular code that controls our robot, allowing organized development, easy maintenance, and feature expansion.
@@ -106,7 +106,7 @@ The code is divided into modules, each specialized in a robot subsystem. Below i
 
 
 
-# 🇬🇹 FGC_TEAM_GUATEMALA - Código de Robótica FTC
+# 🇬🇹 FGC_TEAM_GUATEMALA - Código de Robótica FGC
 
 Bienvenidos al repositorio oficial de **FGC_TEAM_GUATEMALA** para la competencia **FIRST Global Challenge (FGC)**.  
 Este proyecto contiene el código modular que controla nuestro robot, permitiendo desarrollo organizado, fácil mantenimiento y expansión de funcionalidades.
