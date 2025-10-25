@@ -3,31 +3,24 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp(name = "Collector System", group = "Mechanisms")
 public class Collector extends LinearOpMode {
 
     private DcMotorEx motorHex;
-    private Servo servo1;
 
     private boolean hexForward = false;
     private boolean hexReverse = false;
     private boolean prevX, prevTriangle;
 
     private static final double HEX_POWER = 1.0;
-    private static final double SERVO_FORWARD = 1.0;
-    private static final double SERVO_BACKWARD = 0.0;
-    private static final double SERVO_STOP = 0.5;
 
     @Override
     public void runOpMode() throws InterruptedException {
         // Hardware mapping
         motorHex = hardwareMap.get(DcMotorEx.class, "motorHex");
-        servo1 = hardwareMap.get(Servo.class, "servomotor1");
 
-        // Neutral position on init
-        servo1.setPosition(SERVO_STOP);
+
 
         telemetry.addLine("Collector ready.");
         telemetry.update();
@@ -50,13 +43,10 @@ public class Collector extends LinearOpMode {
             // Execute based on toggle state
             if (hexForward) {
                 motorHex.setPower(HEX_POWER);
-                servo1.setPosition(SERVO_FORWARD);
             } else if (hexReverse) {
                 motorHex.setPower(-HEX_POWER);
-                servo1.setPosition(SERVO_BACKWARD);
             } else {
                 motorHex.setPower(0);
-                servo1.setPosition(SERVO_STOP);
             }
 
             telemetry.addData("Collector", hexForward ? "→ Forward" : (hexReverse ? "← Reverse" : "Stopped"));
