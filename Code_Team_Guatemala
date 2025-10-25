@@ -24,7 +24,6 @@ public class firstP2 extends LinearOpMode {
     private DcMotorEx motorUltra; // Accelerator motor
 
     // Servomotors
-    private Servo servomotor1; // Collector servo
     private Servo servomotor2; // Right extender
     private Servo servomotor3; // Left extender
 
@@ -71,7 +70,6 @@ public class firstP2 extends LinearOpMode {
         motorHex2 = hardwareMap.get(DcMotorEx.class, "motorHex2");
         motorUltra = hardwareMap.get(DcMotorEx.class, "motorUltra");
 
-        servomotor1 = hardwareMap.get(Servo.class, "servomotor1");
         servomotor2 = hardwareMap.get(Servo.class, "servomotor2");
         servomotor3 = hardwareMap.get(Servo.class, "servomotor3");
 
@@ -85,7 +83,6 @@ public class firstP2 extends LinearOpMode {
         motorHex2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Servos in neutral position at start
-        servomotor1.setPosition(SERVO_PARAR);
         servomotor2.setPosition(SERVO_PARAR);
         servomotor3.setPosition(SERVO_PARAR);
 
@@ -133,13 +130,10 @@ public class firstP2 extends LinearOpMode {
             // Execute according to state
             if (hexForward) {
                 motorHex.setPower(HEX_POWER);// Collector system spinning clockwise
-                servomotor1.setPosition(SERVO_ADELANTE);
             } else if (hexReverse) {
                 motorHex.setPower(-HEX_POWER);// Collector system spinning counter-clockwise
-                servomotor1.setPosition(SERVO_ATRAS);
             } else {
                 motorHex.setPower(0);// Remain in neutral state
-                servomotor1.setPosition(SERVO_PARAR);
             }
 
             // Rope with encoder (gamepad 2; D-pad and circle)
