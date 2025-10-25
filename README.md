@@ -97,7 +97,7 @@ The code is divided into modules, each specialized in a robot subsystem. Below i
 **Developed by:**  
 ### 🇬🇹 *FGC_TEAM_GUATEMALA*
 ## Lead Programmer
-###*Cristopher Sumalé*
+### *Cristopher Sumalé*
 
 ---
 ---
@@ -207,7 +207,7 @@ El código está dividido en módulos, cada uno especializado en un subsistema d
 **Desarrollado por:**  
 ### 🇬🇹 *FGC_TEAM_GUATEMALA*
 ## Programador principal:
-###*Cristopher Sumalé*
+### *Cristopher Sumalé*
 
 
 
